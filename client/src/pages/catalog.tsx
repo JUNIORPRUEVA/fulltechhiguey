@@ -204,57 +204,65 @@ export default function Catalog() {
     queryKey: ["/api/categories"],
   });
 
-  // Transform categories to include icons
-  const categories = categoriesData.map(category => ({
-    id: category.slug,
-    name: category.name,
-    icon: categoryIcons[category.slug] || "fas fa-tag"
-  }));
+  // Transform categories to include icons - MEMOIZED to prevent recreating array
+  const categories = useMemo(() => 
+    categoriesData.map(category => ({
+      id: category.slug,
+      name: category.name,
+      icon: categoryIcons[category.slug] || "fas fa-tag"
+    })), [categoriesData]);
 
   // Fetch real products from API
   const { data: realProducts = [], isLoading: isProductsLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
 
-  // Filter products
-  const filteredProducts = realProducts.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filter products - MEMOIZED with stable dependencies
+  const filteredProducts = useMemo(() => 
+    realProducts.filter((product) => {
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesCategory =
-      selectedCategory === "all" ||
-      (() => {
-        const productCategoryData = categoriesData.find(
-          (cat) =>
-            cat.id === product.category ||
-            cat.slug === product.category ||
-            cat.name.toLowerCase() === product.category.toLowerCase()
-        );
-        return productCategoryData && productCategoryData.slug === selectedCategory;
-      })();
+      const matchesCategory =
+        selectedCategory === "all" ||
+        (() => {
+          const productCategoryData = categoriesData.find(
+            (cat) =>
+              cat.id === product.category ||
+              cat.slug === product.category ||
+              cat.name.toLowerCase() === product.category.toLowerCase()
+          );
+          return productCategoryData && productCategoryData.slug === selectedCategory;
+        })();
 
-    const matchesOffers = showOnlyOffers ? product.onSale : true;
-    const isInStock = product.inStock;
+      const matchesOffers = showOnlyOffers ? product.onSale : true;
+      const isInStock = product.inStock;
 
-    return matchesSearch && matchesCategory && matchesOffers && isInStock;
-  });
+      return matchesSearch && matchesCategory && matchesOffers && isInStock;
+    }), [realProducts, searchTerm, selectedCategory, showOnlyOffers, categoriesData]);
 
-  const allProducts = filteredProducts;
+  const allProducts = useMemo(() => filteredProducts, [filteredProducts]);
 
   useEffect(() => {
     setIsLoading(isProductsLoading || isCategoriesLoading);
   }, [isProductsLoading, isCategoriesLoading]);
 
-  // Detectar categoría en URL al cargar la página
+  // Detectar categoría en URL al cargar la página - OPTIMIZED to prevent loops
   useEffect(() => {
+    // Only run once when categories are loaded
+    if (categoriesData.length === 0) return;
+    
     const urlParams = new URLSearchParams(window.location.search);
     const categoryFromUrl = urlParams.get('categoria');
     
+    // Only update if the value actually changes
     if (categoryFromUrl && categories.some(cat => cat.id === categoryFromUrl)) {
-      setSelectedCategory(categoryFromUrl);
+      if (selectedCategory !== categoryFromUrl) {
+        setSelectedCategory(categoryFromUrl);
+      }
     }
-  }, [categories]);
+  }, [categoriesData.length]); // Stable dependency
 
   // Función para cambiar categoría y actualizar URL
   const handleCategoryChange = (categoryId: string) => {
@@ -353,7 +361,7 @@ export default function Catalog() {
     if (prefersReducedMotion) setIsAutoScrolling(false);
   }, []);
 
-  // Tracking de productos vistos (para modal de registro)
+  // Tracking de productos vistos (para modal de registro) - STABLE dependencies
   useEffect(() => {
     const handleProductView = () => {
       setProductsViewed(prev => {
@@ -375,7 +383,7 @@ export default function Catalog() {
         card.removeEventListener('click', handleProductView);
       });
     };
-  }, [allProducts, showRegisterModal]);
+  }, [realProducts.length, showRegisterModal]); // Stable length instead of recreated array
 
   if (isLoading) {
     return (
