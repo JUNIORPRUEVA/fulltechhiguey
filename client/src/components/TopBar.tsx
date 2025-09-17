@@ -359,11 +359,7 @@ Busca la opción "Añadir a pantalla de inicio" en el menú del navegador.
                 >
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center">
                     <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-                      {admin.picture ? (
-                        <img src={admin.picture} alt="" className="w-6 h-6 rounded-full object-cover" />
-                      ) : (
-                        <i className="fas fa-user-tie text-white text-xs" />
-                      )}
+                      <i className="fas fa-user-tie text-white text-xs" />
                     </div>
                   </div>
                   <div className="flex-1 text-left">
