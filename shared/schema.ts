@@ -355,20 +355,15 @@ export const userProfiles = pgTable("user_profiles", {
   customerIdx: index("idx_user_profiles_customer_id").on(table.customerId),
 }));
 
-// Categories table for CRUD management
+// Categories table for CRUD management - simplified
 export const categories = pgTable("categories", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull().unique(),
-  slug: text("slug").notNull().unique(),
-  icon: text("icon"), // FontAwesome icon class
   order: integer("order").default(0),
-  active: boolean("active").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
-  createdAt: true,
 });
 
 export type Category = typeof categories.$inferSelect;

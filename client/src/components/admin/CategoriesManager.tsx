@@ -26,10 +26,7 @@ export function CategoriesManager() {
     resolver: zodResolver(insertCategorySchema),
     defaultValues: {
       name: "",
-      slug: "",
-      icon: "",
       order: 0,
-      active: true,
     },
   });
 
@@ -119,10 +116,7 @@ export function CategoriesManager() {
     setIsCreating(false);
     form.reset({
       name: category.name,
-      slug: category.slug,
-      icon: category.icon || "",
       order: category.order || 0,
-      active: category.active,
     });
   };
 
@@ -131,10 +125,7 @@ export function CategoriesManager() {
     setIsCreating(true);
     form.reset({
       name: "",
-      slug: "",
-      icon: "",
       order: 0,
-      active: true,
     });
   };
 
@@ -201,38 +192,10 @@ export function CategoriesManager() {
 
                 <FormField
                   control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug (URL)</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Ej: moviles" data-testid="input-category-slug" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="icon"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Icono (FontAwesome)</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={field.value || ""} placeholder="Ej: fas fa-mobile-alt" data-testid="input-category-icon" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="order"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Orden</FormLabel>
+                      <FormLabel>Posición</FormLabel>
                       <FormControl>
                         <Input 
                           {...field} 
@@ -249,27 +212,6 @@ export function CategoriesManager() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        data-testid="checkbox-category-active"
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Categoría activa</FormLabel>
-                      <p className="text-sm text-gray-600">
-                        Las categorías inactivas no se mostrarán en el catálogo
-                      </p>
-                    </div>
-                  </FormItem>
-                )}
-              />
 
               <div className="flex gap-3">
                 <Button
@@ -309,24 +251,12 @@ export function CategoriesManager() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    {category.icon ? (
-                      <i className={`${category.icon} text-gray-600`}></i>
-                    ) : (
-                      <i className="fas fa-tag text-gray-600"></i>
-                    )}
+                    <i className="fas fa-tag text-gray-600"></i>
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">{category.name}</h4>
-                    <p className="text-sm text-gray-600">Slug: {category.slug}</p>
                     <div className="flex items-center gap-4 mt-1">
-                      <span className="text-xs text-gray-500">Orden: {category.order}</span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        category.active 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {category.active ? 'Activa' : 'Inactiva'}
-                      </span>
+                      <span className="text-xs text-gray-500">Posición: {category.order || 0}</span>
                     </div>
                   </div>
                 </div>

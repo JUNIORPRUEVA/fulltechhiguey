@@ -219,10 +219,9 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
                         <div className="p-2 text-sm text-gray-500">Cargando categorías...</div>
                       ) : categories.length > 0 ? (
                         categories
-                          .filter(category => category.active && category.slug && category.slug.trim() !== '')
                           .sort((a, b) => (a.order || 0) - (b.order || 0))
                           .map((category) => (
-                            <SelectItem key={category.id} value={category.slug}>
+                            <SelectItem key={category.id} value={category.id}>
                               {category.name}
                             </SelectItem>
                           ))
