@@ -85,12 +85,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     createTableIfMissing: true,
   });
 
+  // 🔒 SEGURIDAD: Validar SESSION_SECRET obligatorio para producción
+  if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
+    console.error("❌ CRITICAL: SESSION_SECRET environment variable is required for production");
+    console.error("Please set a secure SESSION_SECRET (minimum 32 characters random string)");
+    process.exit(1);
+  }
+
   app.use(
     session({
       store: pgSessionStore,
-      secret:
-        process.env.SESSION_SECRET ||
-        "your-secret-key-change-in-production",
+      secret: process.env.SESSION_SECRET || "dev-fallback-only-for-development",
       resave: false,
       saveUninitialized: false,
       cookie: {
