@@ -1,5 +1,5 @@
 // client/src/components/ObjectUploader.tsx
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Uppy from "@uppy/core";
 import { DashboardModal } from "@uppy/react";
 import AwsS3 from "@uppy/aws-s3";
@@ -10,6 +10,7 @@ interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
   maxFileSize?: number;
   onComplete?: (fileUrls: string[]) => void;
+  onPreview?: (previewUrl: string) => void; // ✅ NUEVO: callback para preview instantáneo
   buttonClassName?: string;
   children: React.ReactNode;
 }
@@ -18,13 +19,15 @@ export function ObjectUploader({
   maxNumberOfFiles = 50,
   maxFileSize = 50 * 1024 * 1024,
   onComplete,
+  onPreview,
   buttonClassName,
   children,
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
   const fileUrlMap = useMemo(() => new Map<string, string>(), []);
+  const previewUrlMap = useMemo(() => new Map<string, string>(), []); // ✅ NUEVO: URLs de preview para limpiar después
 
-  const getUploadParameters = async (file: UppyFile) => {
+  const getUploadParameters = async (file: UppyFile<any, any>) => {
     // pedir presign con filename + contentType
     const r = await fetch("/api/uploads/presign", {
       method: "POST",
@@ -50,12 +53,40 @@ export function ObjectUploader({
       new Uppy({ restrictions: { maxNumberOfFiles, maxFileSize }, autoProceed: false })
         .use(AwsS3, { shouldUseMultipart: false, getUploadParameters })
         .on("complete", (result) => {
-          const urls = result.successful
+          const urls = (result.successful || [])
             .map((f) => fileUrlMap.get(f.id))
             .filter((x): x is string => Boolean(x));
           onComplete?.(urls);
+          
+          // ✅ Limpiar URLs de preview después del upload completo
+          previewUrlMap.forEach(url => URL.revokeObjectURL(url));
+          previewUrlMap.clear();
         })
   );
+
+  // ✅ NUEVO: Preview instantáneo cuando se agrega archivo
+  useEffect(() => {
+    if (!onPreview) return;
+
+    const handleFileAdded = (file: UppyFile<any, any>) => {
+      // Crear preview instantáneo desde el archivo en memoria
+      if (file.data && file.type?.startsWith('image/')) {
+        const previewUrl = URL.createObjectURL(file.data);
+        previewUrlMap.set(file.id, previewUrl);
+        onPreview(previewUrl); // ✅ Callback inmediato con preview
+      }
+    };
+
+    uppy.on('file-added', handleFileAdded);
+
+    // Cleanup
+    return () => {
+      uppy.off('file-added', handleFileAdded);
+      // Limpiar URLs de preview cuando se desmonte el componente
+      previewUrlMap.forEach(url => URL.revokeObjectURL(url));
+      previewUrlMap.clear();
+    };
+  }, [uppy, onPreview, previewUrlMap]);
 
   return (
     <div>
