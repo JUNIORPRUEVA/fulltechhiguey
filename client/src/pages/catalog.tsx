@@ -583,15 +583,6 @@ export default function Catalog() {
             </div>
           </main>
 
-          {/* DEBUG: Mostrar estado selección */}
-          <div className="fixed top-20 left-4 bg-red-500 text-white p-2 text-xs z-[100]">
-            selectedCategory: "{selectedCategory}" 
-            <br/>
-            condition: {String(selectedCategory && selectedCategory !== 'all')}
-            <br/>
-            categorias: {categories.map(c => c.id).join(', ')}
-          </div>
-
           {/* Floating Category Share Button - Solo aparece cuando hay categoría seleccionada */}
           {selectedCategory && selectedCategory !== 'all' && (
             <button
@@ -623,17 +614,12 @@ export default function Catalog() {
                   window.open(waUrl, '_blank', 'noopener,noreferrer');
                 }
               }}
-              className="fixed bottom-32 right-6 z-50 w-16 h-16 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center animate-pulse border-4 border-yellow-300"
+              className="fixed bottom-32 right-6 z-50 w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
               title={`Compartir productos de ${categories.find(cat => cat.id === selectedCategory)?.name || ''}`}
             >
-              <i className="fas fa-share-alt text-2xl"></i>
+              <i className="fas fa-share-alt text-lg"></i>
             </button>
           )}
-
-          {/* DEBUG: Botón siempre visible para test */}
-          <button className="fixed bottom-48 right-6 z-50 w-16 h-16 bg-purple-500 text-white rounded-full">
-            ALWAYS VISIBLE
-          </button>
 
           {/* Floating WhatsApp Button */}
           <button 
