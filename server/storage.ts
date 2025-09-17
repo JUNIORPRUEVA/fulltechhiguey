@@ -278,14 +278,14 @@ export class DatabaseStorage implements IStorage {
 
   private async seedDefaultCategories() {
     const defaultCategories = [
-      { name: 'Móviles y Smartphones', slug: 'moviles', order: 1, active: true },
-      { name: 'Accesorios', slug: 'accesorios', order: 2, active: true },
-      { name: 'Audio', slug: 'audio', order: 3, active: true },
-      { name: 'Gaming', slug: 'gaming', order: 4, active: true },
-      { name: 'Tablets', slug: 'tablets', order: 5, active: true },
-      { name: 'Wearables', slug: 'wearables', order: 6, active: true },
-      { name: 'Tecnología del Hogar', slug: 'hogar', order: 7, active: true },
-      { name: 'Reacondicionados', slug: 'reacondicionados', order: 8, active: true }
+      { name: 'Móviles y Smartphones', order: 1 },
+      { name: 'Accesorios', order: 2 },
+      { name: 'Audio', order: 3 },
+      { name: 'Gaming', order: 4 },
+      { name: 'Tablets', order: 5 },
+      { name: 'Wearables', order: 6 },
+      { name: 'Tecnología del Hogar', order: 7 },
+      { name: 'Reacondicionados', order: 8 }
     ];
 
     for (const category of defaultCategories) {
@@ -739,7 +739,6 @@ export class DatabaseStorage implements IStorage {
   // Category operations
   async getAllCategories(): Promise<Category[]> {
     return await db.select().from(categories)
-      .where(eq(categories.active, true))
       .orderBy(categories.order, categories.name);
   }
 
