@@ -171,6 +171,14 @@ const sampleProducts: Product[] = [
 ];
 
 const categoryIcons: Record<string, string> = {
+  monitores: "fas fa-desktop",
+  taladros: "fas fa-tools", 
+  relojes: "fas fa-clock",
+  "sistema-de-seguridad": "fas fa-shield-alt",
+  auriculares: "fas fa-headphones",
+  computadora: "fas fa-laptop",
+  impresoras: "fas fa-print",
+  // Mantener algunos extras por compatibilidad
   moviles: "fas fa-mobile-alt",
   accesorios: "fas fa-charging-station",
   audio: "fas fa-headphones",
@@ -208,9 +216,10 @@ export default function Catalog() {
   // Transform categories to include icons - MEMOIZED to prevent recreating array
   const categories = useMemo(() => 
     categoriesData.map(category => ({
-      id: category.slug,
+      id: category.id, // ✅ Usar el ID real de la categoría
       name: category.name,
-      icon: categoryIcons[category.slug] || "fas fa-tag"
+      icon: categoryIcons[category.slug] || "fas fa-tag",
+      slug: category.slug // ✅ Mantener slug para referencia
     })), [categoriesData]);
 
   // Fetch real products from API
