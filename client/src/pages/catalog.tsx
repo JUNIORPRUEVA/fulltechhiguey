@@ -539,57 +539,6 @@ export default function Catalog() {
       </div>
     </div>
 
-    {/* DEBUG: Mostrar estado actual */}
-    <div className="flex justify-center mt-2 bg-red-500 text-white p-2 text-sm">
-      DEBUG - selectedCategory: "{selectedCategory}" | categories: {categories.length}
-    </div>
-
-    {/* Mini botón compartir - Solo aparece cuando hay categoría seleccionada */}
-    {selectedCategory && selectedCategory !== 'all' && (
-      <div className="flex justify-center mt-2 bg-yellow-300 p-4">
-        <button
-          onClick={async () => {
-            const category = categories.find(cat => cat.id === selectedCategory);
-            if (!category) return;
-
-            const url = `${window.location.origin}${window.location.pathname}?categoria=${encodeURIComponent(selectedCategory)}`;
-            const title = `${category.name} - FULLTECH`;
-            const text = `🔧 ¡Mira estos productos de ${category.name} en FULLTECH!`;
-
-            // Web Share API
-            if (navigator.share) {
-              try {
-                await navigator.share({ title, text, url });
-                return;
-              } catch (error) {
-                // Continue to fallback
-              }
-            }
-
-            // Clipboard fallback  
-            try {
-              await navigator.clipboard.writeText(`${text}\n${url}`);
-              alert(`¡Enlace de ${category.name} copiado!`);
-            } catch {
-              // WhatsApp fallback
-              const waUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
-              window.open(waUrl, '_blank', 'noopener,noreferrer');
-            }
-          }}
-          className="bg-red-500 hover:bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg text-lg font-bold"
-          title={`Compartir productos de ${categories.find(cat => cat.id === selectedCategory)?.name || ''}`}
-        >
-          🔥 BOTÓN COMPARTIR VISIBLE 🔥
-        </button>
-      </div>
-    )}
-
-    {/* DEBUG: Siempre mostrar botón para test */}
-    <div className="flex justify-center mt-2 bg-green-500 p-4">
-      <button className="bg-purple-500 text-white px-4 py-2 rounded">
-        TEST - Este botón siempre debe aparecer
-      </button>
-    </div>
   </div>
 </div>
 
@@ -639,6 +588,44 @@ export default function Catalog() {
               </section>
             </div>
           </main>
+
+          {/* Floating Category Share Button - Solo aparece cuando hay categoría seleccionada */}
+          {selectedCategory && selectedCategory !== 'all' && (
+            <button
+              onClick={async () => {
+                const category = categories.find(cat => cat.id === selectedCategory);
+                if (!category) return;
+
+                const url = `${window.location.origin}${window.location.pathname}?categoria=${encodeURIComponent(selectedCategory)}`;
+                const title = `${category.name} - FULLTECH`;
+                const text = `🔧 ¡Mira estos productos de ${category.name} en FULLTECH!`;
+
+                // Web Share API
+                if (navigator.share) {
+                  try {
+                    await navigator.share({ title, text, url });
+                    return;
+                  } catch (error) {
+                    // Continue to fallback
+                  }
+                }
+
+                // Clipboard fallback  
+                try {
+                  await navigator.clipboard.writeText(`${text}\n${url}`);
+                  alert(`¡Enlace de ${category.name} copiado!`);
+                } catch {
+                  // WhatsApp fallback
+                  const waUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
+                  window.open(waUrl, '_blank', 'noopener,noreferrer');
+                }
+              }}
+              className="fixed bottom-32 right-6 z-50 w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center animate-bounce-slow"
+              title={`Compartir productos de ${categories.find(cat => cat.id === selectedCategory)?.name || ''}`}
+            >
+              <i className="fas fa-share-alt text-xl"></i>
+            </button>
+          )}
 
           {/* Floating WhatsApp Button */}
           <button 
