@@ -31,6 +31,40 @@ export function CategoryFilters({
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const [isMobile, setIsMobile] = React.useState(false);
 
+  // Función para compartir categoría específica
+  const handleShareCategory = async () => {
+    const category = categories.find(cat => cat.id === selectedCategory);
+    if (!category) return;
+
+    const url = `${window.location.origin}${window.location.pathname}?categoria=${selectedCategory}`;
+    const title = `${category.name} - FULLTECH`;
+    const text = `🔧 ¡Mira estos productos de ${category.name} en FULLTECH!`;
+
+    // Usar Web Share API si está disponible
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text,
+          url
+        });
+        return;
+      } catch (error) {
+        // Si se cancela o falla, continuar con fallback
+      }
+    }
+
+    // Fallback: copiar al portapapeles
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      alert(`¡Enlace de ${category.name} copiado!`);
+    } catch {
+      // Fallback final: abrir WhatsApp
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const scrollBy = (px: number) => {
     listRef.current?.scrollBy({ left: px, behavior: "smooth" });
   };
@@ -154,6 +188,20 @@ export function CategoryFilters({
           </div>
         </div>
       </div>
+
+      {/* Mini botón compartir - Solo aparece cuando hay categoría seleccionada */}
+      {selectedCategory && selectedCategory !== 'all' && (
+        <div className="absolute -top-12 right-4 z-50">
+          <button
+            onClick={handleShareCategory}
+            className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm"
+            title={`Compartir productos de ${categories.find(cat => cat.id === selectedCategory)?.name || ''}`}
+          >
+            <i className="fas fa-share-alt text-xs" />
+            <span className="hidden md:inline">Compartir</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -246,6 +246,28 @@ export default function Catalog() {
     setIsLoading(isProductsLoading || isCategoriesLoading);
   }, [isProductsLoading, isCategoriesLoading]);
 
+  // Detectar categoría en URL al cargar la página
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryFromUrl = urlParams.get('categoria');
+    
+    if (categoryFromUrl && categories.some(cat => cat.id === categoryFromUrl)) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [categories]);
+
+  // Función para cambiar categoría y actualizar URL
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    
+    // Actualizar URL
+    const newUrl = categoryId === 'all' 
+      ? window.location.pathname 
+      : `${window.location.pathname}?categoria=${categoryId}`;
+    
+    window.history.pushState({}, '', newUrl);
+  };
+
   // Auto-scroll ultra suave de categorías
   useEffect(() => {
     let animationId: number;
@@ -396,7 +418,7 @@ export default function Catalog() {
         </button>
 
         <button
-          onClick={() => { setSelectedCategory("all"); setShowOnlyOffers(false); }}
+          onClick={() => { handleCategoryChange("all"); setShowOnlyOffers(false); }}
           className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-300 flex items-center gap-1.5 ${
             !showOnlyOffers && selectedCategory === "all"
               ? "bg-white text-blue-600 shadow-md scale-105"
@@ -474,7 +496,7 @@ export default function Catalog() {
         return (
           <button
             key={`${category.id}-${index}`}
-            onClick={() => setSelectedCategory(category.id)}
+            onClick={() => handleCategoryChange(category.id)}
             className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-300 flex-shrink-0 shadow-md backdrop-blur-md border snap-start ${
               selectedCategory === category.id
                 ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg border-white/20"
