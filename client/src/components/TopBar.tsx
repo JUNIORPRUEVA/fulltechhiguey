@@ -113,21 +113,32 @@ export function TopBar() {
   }, [isAppInstalled]);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      // sin prompt (iOS / casos raros) → mostrar ayuda
-      setShowIosTip(true);
-      return;
+    if (deferredPrompt) {
+      // Instalación automática disponible
+      setCanInstall(false);
+      deferredPrompt.prompt();
+      try {
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome !== "accepted") {
+          // si canceló, podemos volver a mostrar el botón
+          setCanInstall(true);
+        }
+      } catch {}
+      setDeferredPrompt(null);
+    } else {
+      // Sin prompt automático → mostrar instrucciones manuales
+      alert(`Para instalar FULLTECH como una app:
+
+📱 En Chrome/Edge:
+1. Presiona los 3 puntos (⋮) en el navegador
+2. Busca "Instalar FULLTECH" o "Añadir a pantalla de inicio"
+3. Confirma la instalación
+
+🔍 En otros navegadores:
+Busca la opción "Añadir a pantalla de inicio" en el menú del navegador.
+
+¡Una vez instalada tendrás acceso rápido desde tu dispositivo!`);
     }
-    setCanInstall(false);
-    deferredPrompt.prompt();
-    try {
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome !== "accepted") {
-        // si canceló, podemos volver a mostrar el botón
-        setCanInstall(true);
-      }
-    } catch {}
-    setDeferredPrompt(null);
   };
 
   const handleShareClick = async () => {
@@ -210,16 +221,16 @@ export function TopBar() {
             </button>
           )}
 
-          {/* Instalar PWA (solo si es instalable, no instalada y no iOS) */}
-          {canInstall && !isAppInstalled && !isIOS && (
+          {/* Instalar PWA - SIEMPRE visible cuando no esté instalada (excepto iOS) */}
+          {!isAppInstalled && !isIOS && (
             <button
               onClick={handleInstallClick}
-              className="rounded-full p-2 md:p-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
+              className="rounded-full p-2 md:p-3 bg-blue-500 hover:bg-blue-600 text-white border border-blue-300 transition-colors shadow-lg"
               data-testid="button-install-pwa"
               title="Instalar app"
               aria-label="Instalar app"
             >
-              <i className="fas fa-download text-black text-sm md:text-base" />
+              <i className="fas fa-download text-white text-sm md:text-base" />
             </button>
           )}
           
