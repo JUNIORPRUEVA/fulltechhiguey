@@ -263,10 +263,27 @@ export default function Catalog() {
     // Actualizar URL
     const newUrl = categoryId === 'all' 
       ? window.location.pathname 
-      : `${window.location.pathname}?categoria=${categoryId}`;
+      : `${window.location.pathname}?categoria=${encodeURIComponent(categoryId)}`;
     
     window.history.pushState({}, '', newUrl);
   };
+
+  // Handler para navegación atrás/adelante
+  useEffect(() => {
+    const handlePopState = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const categoryFromUrl = urlParams.get('categoria');
+      
+      if (categoryFromUrl && categories.some(cat => cat.id === categoryFromUrl)) {
+        setSelectedCategory(categoryFromUrl);
+      } else {
+        setSelectedCategory('all');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [categories]);
 
   // Auto-scroll ultra suave de categorías
   useEffect(() => {
@@ -521,6 +538,48 @@ export default function Catalog() {
         <i className="fas fa-chevron-right animate-pulse" />
       </div>
     </div>
+
+    {/* Mini botón compartir - Solo aparece cuando hay categoría seleccionada */}
+    {selectedCategory && selectedCategory !== 'all' && (
+      <div className="absolute top-0 right-4 -translate-y-12">
+        <button
+          onClick={async () => {
+            const category = categories.find(cat => cat.id === selectedCategory);
+            if (!category) return;
+
+            const url = `${window.location.origin}${window.location.pathname}?categoria=${encodeURIComponent(selectedCategory)}`;
+            const title = `${category.name} - FULLTECH`;
+            const text = `🔧 ¡Mira estos productos de ${category.name} en FULLTECH!`;
+
+            // Web Share API
+            if (navigator.share) {
+              try {
+                await navigator.share({ title, text, url });
+                return;
+              } catch (error) {
+                // Continue to fallback
+              }
+            }
+
+            // Clipboard fallback  
+            try {
+              await navigator.clipboard.writeText(`${text}\n${url}`);
+              // TODO: Replace with toast
+              alert(`¡Enlace de ${category.name} copiado!`);
+            } catch {
+              // WhatsApp fallback
+              const waUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
+              window.open(waUrl, '_blank', 'noopener,noreferrer');
+            }
+          }}
+          className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm"
+          title={`Compartir productos de ${categories.find(cat => cat.id === selectedCategory)?.name || ''}`}
+        >
+          <i className="fas fa-share-alt text-xs" />
+          <span className="hidden md:inline">Compartir</span>
+        </button>
+      </div>
+    )}
   </div>
 </div>
 
