@@ -34,6 +34,8 @@ const sampleProducts: Product[] = [
     rating: 5,
     reviewCount: 128,
     likes: 45,
+    likeCount: 45,
+    shareCount: 12,
   },
   {
     id: "2",
@@ -53,6 +55,9 @@ const sampleProducts: Product[] = [
     originalPrice: null,
     rating: 5,
     reviewCount: 89,
+    likes: 34,
+    likeCount: 34,
+    shareCount: 8,
   },
   {
     id: "3",
@@ -72,6 +77,9 @@ const sampleProducts: Product[] = [
     originalPrice: 29900,
     rating: 5,
     reviewCount: 445,
+    likes: 67,
+    likeCount: 67,
+    shareCount: 15,
   },
   {
     id: "4",
@@ -91,6 +99,9 @@ const sampleProducts: Product[] = [
     originalPrice: null,
     rating: 4,
     reviewCount: 89,
+    likes: 23,
+    likeCount: 23,
+    shareCount: 5,
   },
   {
     id: "5",
@@ -110,6 +121,9 @@ const sampleProducts: Product[] = [
     originalPrice: 7900,
     rating: 5,
     reviewCount: 234,
+    likes: 89,
+    likeCount: 89,
+    shareCount: 22,
   },
   {
     id: "6",
@@ -129,6 +143,9 @@ const sampleProducts: Product[] = [
     originalPrice: null,
     rating: 4,
     reviewCount: 56,
+    likes: 12,
+    likeCount: 12,
+    shareCount: 3,
   },
   {
     id: "7",
@@ -148,6 +165,9 @@ const sampleProducts: Product[] = [
     originalPrice: 21900,
     rating: 5,
     reviewCount: 445,
+    likes: 156,
+    likeCount: 156,
+    shareCount: 33,
   },
   {
     id: "8",
@@ -167,6 +187,9 @@ const sampleProducts: Product[] = [
     originalPrice: null,
     rating: 5,
     reviewCount: 892,
+    likes: 234,
+    likeCount: 234,
+    shareCount: 45,
   },
 ];
 
@@ -218,7 +241,7 @@ export default function Catalog() {
     categoriesData.map(category => ({
       id: category.id, // ✅ Usar el ID real de la categoría
       name: category.name,
-      icon: categoryIcons[category.slug] || "fas fa-tag",
+      icon: categoryIcons[category.slug || ""] || "fas fa-tag",
       slug: category.slug // ✅ Mantener slug para referencia
     })), [categoriesData]);
 
@@ -237,13 +260,25 @@ export default function Catalog() {
       const matchesCategory =
         selectedCategory === "all" ||
         (() => {
-          const productCategoryData = categoriesData.find(
-            (cat) =>
-              cat.id === product.category ||
-              cat.slug === product.category ||
-              cat.name.toLowerCase() === product.category.toLowerCase()
-          );
-          return productCategoryData && productCategoryData.slug === selectedCategory;
+          // ✅ ARREGLADO: Comparar correctamente IDs y slugs
+          // selectedCategory contiene el ID de la categoría
+          // product.category puede ser ID, slug, o nombre legacy
+          
+          // Caso 1: Comparación directa por ID
+          if (product.category === selectedCategory) {
+            return true;
+          }
+          
+          // Caso 2: product.category es un slug/nombre legacy, convertir selectedCategory a slug para comparar
+          const selectedCategoryData = categoriesData.find(cat => cat.id === selectedCategory);
+          if (selectedCategoryData) {
+            return (
+              product.category === selectedCategoryData.slug ||
+              product.category.toLowerCase() === selectedCategoryData.name.toLowerCase()
+            );
+          }
+          
+          return false;
         })();
 
       const matchesOffers = showOnlyOffers ? product.onSale : true;

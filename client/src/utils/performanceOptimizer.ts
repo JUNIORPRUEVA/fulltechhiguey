@@ -213,7 +213,7 @@ export class PerformanceOptimizer {
       // Tiempo hasta contenido más grande
       lcp: paint.find(entry => entry.name === 'largest-contentful-paint')?.startTime || 0,
       // Tiempo total
-      totalTime: navigation.loadEventEnd - navigation.navigationStart
+      totalTime: navigation.loadEventEnd - (navigation as any).navigationStart
     };
   }
 }
