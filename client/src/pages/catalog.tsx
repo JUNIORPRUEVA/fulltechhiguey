@@ -541,7 +541,7 @@ export default function Catalog() {
 
     {/* Mini botón compartir - Solo aparece cuando hay categoría seleccionada */}
     {selectedCategory && selectedCategory !== 'all' && (
-      <div className="absolute top-0 right-4 -translate-y-12">
+      <div className="flex justify-center mt-2">
         <button
           onClick={async () => {
             const category = categories.find(cat => cat.id === selectedCategory);
@@ -564,7 +564,6 @@ export default function Catalog() {
             // Clipboard fallback  
             try {
               await navigator.clipboard.writeText(`${text}\n${url}`);
-              // TODO: Replace with toast
               alert(`¡Enlace de ${category.name} copiado!`);
             } catch {
               // WhatsApp fallback
@@ -572,11 +571,11 @@ export default function Catalog() {
               window.open(waUrl, '_blank', 'noopener,noreferrer');
             }
           }}
-          className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm animate-bounce-slow"
           title={`Compartir productos de ${categories.find(cat => cat.id === selectedCategory)?.name || ''}`}
         >
-          <i className="fas fa-share-alt text-xs" />
-          <span className="hidden md:inline">Compartir</span>
+          <i className="fas fa-share-alt text-sm" />
+          <span>Compartir {categories.find(cat => cat.id === selectedCategory)?.name}</span>
         </button>
       </div>
     )}
