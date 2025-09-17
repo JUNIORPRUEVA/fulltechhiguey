@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect } from "react";
 
 interface Category {
   id: string;
@@ -28,10 +29,49 @@ export function CategoryFilters({
   onCategoryChange,
 }: CategoryFiltersProps) {
   const listRef = React.useRef<HTMLDivElement | null>(null);
+  const [isMobile, setIsMobile] = React.useState(false);
 
   const scrollBy = (px: number) => {
     listRef.current?.scrollBy({ left: px, behavior: "smooth" });
   };
+
+  // Detectar si estamos en móvil
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-scroll para móvil (cámara lenta)
+  useEffect(() => {
+    if (!isMobile || !listRef.current) return;
+
+    const autoScroll = () => {
+      const container = listRef.current;
+      if (!container) return;
+
+      const scrollWidth = container.scrollWidth;
+      const clientWidth = container.clientWidth;
+      const currentScroll = container.scrollLeft;
+
+      // Si llegamos al final, volver al inicio suavemente
+      if (currentScroll >= scrollWidth - clientWidth) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        // Scroll lento hacia la derecha (1 pixel cada 50ms = muy lento)
+        container.scrollLeft += 1;
+      }
+    };
+
+    const interval = setInterval(autoScroll, 50); // Cada 50ms para movimiento suave y lento
+
+    return () => clearInterval(interval);
+  }, [isMobile, categories]); // Reiniciar cuando cambian las categorías
 
   return (
     <div
