@@ -1,8 +1,8 @@
-// Service Worker para FULLTECH - Cache Inteligente y Sincronización
-const CACHE_NAME = 'fulltech-v1.0.11';
-const STATIC_CACHE = 'fulltech-static-v1.0.11';
-const DYNAMIC_CACHE = 'fulltech-dynamic-v1.0.11';
-const IMAGE_CACHE = 'fulltech-images-v1.0.11';
+// Service Worker para FULLTECH - Cache Inteligente y Sincronización  
+const CACHE_NAME = 'fulltech-v1.0.13-no-js-cache';
+const STATIC_CACHE = 'fulltech-static-v1.0.13-no-js-cache';
+const DYNAMIC_CACHE = 'fulltech-dynamic-v1.0.13-no-js-cache';
+const IMAGE_CACHE = 'fulltech-images-v1.0.13-no-js-cache';
 
 // Recursos críticos para precachear (mínimos y seguros)
 const CRITICAL_RESOURCES = [
@@ -122,8 +122,17 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // ✅ 6) Recursos estáticos: Cache First
-  if (url.pathname.match(/\.(css|js|woff|woff2|ttf|eot)$/)) {
+  // 🚀 NUNCA CACHEAR SCRIPTS JavaScript - SIEMPRE NETWORK FIRST (DEBUG FIX)
+  if (request.destination === 'script' || url.pathname.endsWith('.js') || 
+      url.pathname.includes('/@vite/') || url.pathname.includes('/src/') || 
+      url.pathname.includes('/node_modules/')) {
+    console.log('[SW] SCRIPT BYPASS:', url.pathname);
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // ✅ 6) Recursos estáticos: Cache First (CSS, FONTS solamente, NO JS)
+  if (url.pathname.match(/\.(css|woff|woff2|ttf|eot)$/)) {
     event.respondWith(handleStaticRequest(request));
     return;
   }

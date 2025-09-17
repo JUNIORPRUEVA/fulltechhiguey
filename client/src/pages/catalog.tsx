@@ -539,9 +539,14 @@ export default function Catalog() {
       </div>
     </div>
 
+    {/* DEBUG: Mostrar estado actual */}
+    <div className="flex justify-center mt-2 bg-red-500 text-white p-2 text-sm">
+      DEBUG - selectedCategory: "{selectedCategory}" | categories: {categories.length}
+    </div>
+
     {/* Mini botón compartir - Solo aparece cuando hay categoría seleccionada */}
     {selectedCategory && selectedCategory !== 'all' && (
-      <div className="flex justify-center mt-2">
+      <div className="flex justify-center mt-2 bg-yellow-300 p-4">
         <button
           onClick={async () => {
             const category = categories.find(cat => cat.id === selectedCategory);
@@ -571,14 +576,20 @@ export default function Catalog() {
               window.open(waUrl, '_blank', 'noopener,noreferrer');
             }
           }}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm animate-bounce-slow"
+          className="bg-red-500 hover:bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg text-lg font-bold"
           title={`Compartir productos de ${categories.find(cat => cat.id === selectedCategory)?.name || ''}`}
         >
-          <i className="fas fa-share-alt text-sm" />
-          <span>Compartir {categories.find(cat => cat.id === selectedCategory)?.name}</span>
+          🔥 BOTÓN COMPARTIR VISIBLE 🔥
         </button>
       </div>
     )}
+
+    {/* DEBUG: Siempre mostrar botón para test */}
+    <div className="flex justify-center mt-2 bg-green-500 p-4">
+      <button className="bg-purple-500 text-white px-4 py-2 rounded">
+        TEST - Este botón siempre debe aparecer
+      </button>
+    </div>
   </div>
 </div>
 
