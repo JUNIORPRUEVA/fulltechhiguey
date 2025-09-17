@@ -110,26 +110,43 @@
   <body>
     <div id="root"></div>
 
-    <!-- Service Worker: registra el minimal para evitar cache agresiva -->
+    <!-- Service Worker: EMERGENCIA SIN CACHE -->
     <script>
-      (function () {
-        if (!('serviceWorker' in navigator)) return;
-
-        async function registerSW() {
-          try {
-            const reg = await navigator.serviceWorker.register('/sw-minimal.js');
-            console.log('[SW] registered /sw-minimal.js', reg.scope);
-            navigator.serviceWorker.ready
-              .then((r) => console.log('[SW] ready:', r.scope))
-              .catch(() => {});
-          } catch (e1) {
-            console.error('[SW] registration failed:', e1);
-          }
-        }
-
-        if (document.readyState === 'complete') registerSW();
-        else window.addEventListener('load', registerSW);
-      })();
+      console.log('[SW-EMERGENCY] INICIANDO SERVICE WORKER SIN CACHE');
+      
+      if ('serviceWorker' in navigator) {
+        // 1. DESREGISTRAR TODO
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(registration => {
+            console.log('[SW-EMERGENCY] Desregistrando:', registration.scope);
+            registration.unregister();
+          });
+        });
+        
+        // 2. BORRAR TODO EL CACHE
+        caches.keys().then(cacheNames => {
+          cacheNames.forEach(cacheName => {
+            console.log('[SW-EMERGENCY] Borrando cache:', cacheName);
+            caches.delete(cacheName);
+          });
+        });
+        
+        // 3. REGISTRAR SW SIN CACHE
+        setTimeout(() => {
+          navigator.serviceWorker.register('/sw-debug.js')
+            .then(registration => {
+              console.log('[SW-EMERGENCY] Service Worker sin cache registrado!');
+              registration.update();
+              
+              // FORZAR RELOAD después de 2 segundos
+              setTimeout(() => {
+                console.log('[SW-EMERGENCY] FORZANDO RELOAD...');
+                window.location.reload();
+              }, 2000);
+            })
+            .catch(error => console.error('[SW-EMERGENCY] Error:', error));
+        }, 500);
+      }
     </script>
 
     <!-- App -->
