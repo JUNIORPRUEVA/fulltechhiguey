@@ -1,8 +1,8 @@
 // Service Worker para FULLTECH - Cache Inteligente y Sincronización
-const CACHE_NAME = 'fulltech-v1.0.8';
-const STATIC_CACHE = 'fulltech-static-v1.0.8';
-const DYNAMIC_CACHE = 'fulltech-dynamic-v1.0.8';
-const IMAGE_CACHE = 'fulltech-images-v1.0.8';
+const CACHE_NAME = 'fulltech-v1.0.9';
+const STATIC_CACHE = 'fulltech-static-v1.0.9';
+const DYNAMIC_CACHE = 'fulltech-dynamic-v1.0.9';
+const IMAGE_CACHE = 'fulltech-images-v1.0.9';
 
 // Recursos críticos para precachear (mínimos y seguros)
 const CRITICAL_RESOURCES = [
