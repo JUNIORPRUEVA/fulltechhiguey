@@ -48,12 +48,9 @@ export function ProductCard({ product, layout, isHomePage = false }: ProductCard
 
     // 1) Web Share API (móvil y navegadores compatibles)
     try {
-      // @ts-expect-error: canShare no está en lib.dom.d.ts en versiones antiguas
       if (navigator.share) {
-        // @ts-expect-error
         const canShare = navigator.canShare ? navigator.canShare({ title, text, url }) : true;
         if (canShare) {
-          // @ts-expect-error
           await navigator.share({ title, text, url });
           return;
         }

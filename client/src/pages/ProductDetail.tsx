@@ -140,7 +140,7 @@ export default function ProductDetail() {
 
   // ¿Hay bloques de detalle para renderizar abajo?
   const hasExtended =
-    Boolean(product.longDescription && product.longDescription.trim().length > 0) ||
+    Boolean(product.description && product.description.trim().length > 100) ||
     Boolean((product as any).specs && (Array.isArray((product as any).specs) ? (product as any).specs.length : Object.keys((product as any).specs || {}).length));
 
   return (
@@ -291,11 +291,11 @@ export default function ProductDetail() {
       {/* CONTENIDO EXTENDIDO (solo si existe) */}
       {hasExtended && (
         <section className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-          {product.longDescription && (
+          {product.description && product.description.length > 100 && (
             <div className="bg-card text-card-foreground rounded-xl p-5 shadow-sm">
               <h2 className="text-lg font-semibold mb-2">Descripción</h2>
               <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                {product.longDescription}
+                {product.description}
               </p>
             </div>
           )}

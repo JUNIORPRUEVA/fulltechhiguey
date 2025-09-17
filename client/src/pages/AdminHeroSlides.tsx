@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { HeroSlideForm } from "@/components/admin/HeroSlideForm";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import type { AdminHeroSlidesResponse } from "@/types/api";
 
 export default function AdminHeroSlides() {
   const { toast } = useToast();
@@ -13,7 +14,7 @@ export default function AdminHeroSlides() {
   const [showForm, setShowForm] = useState(false);
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
 
-  const { data: slides = [], isLoading } = useQuery({
+  const { data: slides = [], isLoading } = useQuery<AdminHeroSlidesResponse[]>({
     queryKey: ["/api/admin/hero-slides"],
     retry: false,
   });

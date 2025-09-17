@@ -8,6 +8,7 @@ import { ProductForm } from "@/components/admin/ProductForm";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { formatPrice } from "@/utils/currency";
+import type { AdminProductsResponse } from "@/types/api";
 
 export default function AdminProducts() {
   const { toast } = useToast();
@@ -17,7 +18,7 @@ export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const { data: products = [], isLoading } = useQuery({
+  const { data: products = [], isLoading } = useQuery<AdminProductsResponse[]>({
     queryKey: ["/api/admin/products"],
     retry: false,
   });
@@ -42,9 +43,9 @@ export default function AdminProducts() {
     },
   });
 
-  const categories = ["all", ...new Set(products.map((p: Product) => p.category))];
+  const categories = ["all", ...new Set(products.map((p) => p.category))];
 
-  const filteredProducts = products.filter((product: Product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
@@ -132,19 +133,19 @@ export default function AdminProducts() {
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-2xl font-bold text-green-600">
-            {products.filter((p: Product) => p.inStock).length}
+            {products.filter((p) => p.inStock).length}
           </div>
           <div className="text-sm text-gray-600">En stock</div>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-2xl font-bold text-purple-600">
-            {products.filter((p: Product) => p.featured).length}
+            {products.filter((p) => p.featured).length}
           </div>
           <div className="text-sm text-gray-600">Destacados</div>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="text-2xl font-bold text-orange-600">
-            {products.filter((p: Product) => p.onSale).length}
+            {products.filter((p) => p.onSale).length}
           </div>
           <div className="text-sm text-gray-600">En oferta</div>
         </div>
@@ -198,7 +199,7 @@ export default function AdminProducts() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredProducts.map((product: Product) => (
+                  {filteredProducts.map((product) => (
                     <tr key={product.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center">
@@ -279,7 +280,7 @@ export default function AdminProducts() {
 
             {/* Mobile Cards */}
             <div className="lg:hidden divide-y divide-gray-200">
-              {filteredProducts.map((product: Product) => (
+              {filteredProducts.map((product) => (
                 <div key={product.id} className="p-4">
                   <div className="flex gap-4">
                     {product.images.length > 0 && (

@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCacheManager } from '@/utils/cacheManager';
 import { useOfflineSync, useOptimisticUI } from './useOfflineSync';
+import type { Product } from '@shared/schema';
 
 export function useOptimizedProducts() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingFromCache, setIsLoadingFromCache] = useState(true);
   const cacheManager = useCacheManager();
   const queryClient = useQueryClient();
@@ -79,12 +80,12 @@ export function useOptimizedProducts() {
       
       // Precargar imágenes nuevas
       const newImages = networkProducts
-        .flatMap(product => product.images || [])
+        .flatMap((product: Product) => product.images || [])
         .slice(0, 50);
       
       // Precargar en background sin bloquear UI
       requestIdleCallback(() => {
-        newImages.forEach(url => {
+        newImages.forEach((url: string) => {
           cacheManager.cacheImage(url);
         });
       });

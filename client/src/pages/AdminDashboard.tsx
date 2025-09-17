@@ -21,8 +21,8 @@ export default function AdminDashboard() {
   
   // Configuración del logo
   const configs = useConfigLoader();
-  const logoUrl = getConfigValue(configs, 'logo_url') || logoDefault;
-  const logoAlt = getConfigValue(configs, 'logo_alt') || 'FULLTECH Logo';
+  const logoUrl = getConfigValue(configs, 'logo_url', logoDefault);
+  const logoAlt = getConfigValue(configs, 'logo_alt', 'FULLTECH Logo');
   
   // Navegación instantánea
   const { navigateInstantly } = useInstantNavigation();

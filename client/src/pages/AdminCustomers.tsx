@@ -3,16 +3,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import type { AdminCustomersResponse } from "@/types/api";
 
 export default function AdminCustomers() {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: customers = [], isLoading } = useQuery({
+  const { data: customers = [], isLoading } = useQuery<AdminCustomersResponse[]>({
     queryKey: ["/api/admin/customers"],
     retry: false,
   });
 
-  const filteredCustomers = customers.filter((customer: any) => {
+  const filteredCustomers = customers.filter((customer) => {
     const searchLower = searchTerm.toLowerCase();
     return customer.name.toLowerCase().includes(searchLower) ||
            customer.phone?.toLowerCase().includes(searchLower) ||
@@ -70,7 +71,7 @@ export default function AdminCustomers() {
                 <p className="text-sm text-gray-600">Total Clientes</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{customers.filter((c: any) => c.isActive).length}</p>
+                <p className="text-2xl font-bold text-green-600">{customers.filter((c) => c.isActive).length}</p>
                 <p className="text-sm text-gray-600">Activos</p>
               </div>
             </div>
@@ -103,7 +104,7 @@ export default function AdminCustomers() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCustomers.map((customer: any) => (
+                {filteredCustomers.map((customer) => (
                   <tr key={customer.id} className="hover:bg-gray-50">
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center">

@@ -8,12 +8,12 @@ import { useState } from "react";
 export default function AdminRaffle() {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: participants = [], isLoading } = useQuery({
+  const { data: participants = [], isLoading } = useQuery<RaffleParticipant[]>({
     queryKey: ["/api/admin/raffle-participants"],
     retry: false,
   });
 
-  const filteredParticipants = participants.filter((participant: RaffleParticipant) => {
+  const filteredParticipants = participants.filter((participant) => {
     const searchLower = searchTerm.toLowerCase();
     return participant.name.toLowerCase().includes(searchLower) ||
            participant.phone.toLowerCase().includes(searchLower) ||

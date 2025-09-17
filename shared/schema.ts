@@ -60,6 +60,7 @@ export const admins = pgTable("admins", {
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   name: text("name").notNull(),
+  picture: text("picture"), // Admin profile picture
   role: text("role").notNull().default("admin"), // admin, super_admin
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
@@ -115,6 +116,8 @@ export const customers = pgTable("customers", {
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
   lastVisit: timestamp("last_visit"),
+  referralCode: text("referral_code").unique(), // ✅ Unique referral code for this customer
+  referredBy: text("referred_by"), // ✅ ID of customer who referred this customer
 }, (table) => ({
   // 🔗 Foreign Key Relationships
   // 🛡️ Authentication Constraints - Ensure proper auth fields based on provider
@@ -359,6 +362,7 @@ export const userProfiles = pgTable("user_profiles", {
 export const categories = pgTable("categories", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull().unique(),
+  slug: text("slug").unique(), // URL slug for categories
   order: integer("order").default(0),
 });
 

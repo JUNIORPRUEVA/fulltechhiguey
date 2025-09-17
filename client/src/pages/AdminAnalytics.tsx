@@ -2,11 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import type { AdminAnalyticsData } from "@/types/api";
 
 export default function AdminAnalytics() {
   const [selectedPeriod, setSelectedPeriod] = useState("7days");
 
-  const { data: analytics = {}, isLoading } = useQuery({
+  const { data: analytics = {} as AdminAnalyticsData, isLoading } = useQuery<AdminAnalyticsData>({
     queryKey: ["/api/admin/analytics", selectedPeriod],
     retry: false,
   });
@@ -159,7 +160,7 @@ export default function AdminAnalytics() {
             
             <div className="p-6">
               <div className="space-y-4">
-                {(analytics.topReferrers || []).map((referrer: any, index: number) => (
+                {(analytics.topReferrers || []).map((referrer, index: number) => (
                   <div key={referrer.id || index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
                     <div className="flex items-center">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
@@ -196,7 +197,7 @@ export default function AdminAnalytics() {
             
             <div className="p-6">
               <div className="space-y-4">
-                {(analytics.recentActivity || []).map((activity: any, index: number) => (
+                {(analytics.recentActivity || []).map((activity, index: number) => (
                   <div key={activity.id || index} className="flex items-center py-3">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                       <i className={`fas ${activity.icon || 'fa-bell'} text-blue-600 text-xs`}></i>

@@ -33,6 +33,7 @@ const sampleProducts: Product[] = [
     originalPrice: 119900,
     rating: 5,
     reviewCount: 128,
+    likes: 45,
   },
   {
     id: "2",

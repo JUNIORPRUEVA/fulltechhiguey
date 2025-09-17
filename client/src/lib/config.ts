@@ -12,9 +12,26 @@ interface SiteConfig {
 // Global config cache
 let configCache: SiteConfig[] = [];
 
-// Function to get a config value with fallback
-export function getConfigValue(key: string, defaultValue: string = ""): string {
-  const config = configCache.find(c => c.key === key);
+// Overloaded function to support both signatures for backward compatibility
+export function getConfigValue(key: string, defaultValue?: string): string;
+export function getConfigValue(configs: SiteConfig[], key: string, defaultValue?: string): string;
+export function getConfigValue(
+  keyOrConfigs: string | SiteConfig[], 
+  keyOrDefaultValue?: string, 
+  defaultValue: string = ""
+): string {
+  // If first parameter is string, use cache-based lookup (legacy)
+  if (typeof keyOrConfigs === "string") {
+    const key = keyOrConfigs;
+    const fallback = keyOrDefaultValue || "";
+    const config = configCache.find(c => c.key === key);
+    return config?.value || fallback;
+  }
+  
+  // If first parameter is array, use new signature
+  const configs = keyOrConfigs as SiteConfig[];
+  const key = keyOrDefaultValue as string;
+  const config = configs.find(c => c.key === key);
   return config?.value || defaultValue;
 }
 
