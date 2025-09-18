@@ -360,8 +360,6 @@ export class DatabaseStorage implements IStorage {
       rating: product.rating || 5,
       reviewCount: product.reviewCount || 0,
       likes: product.likes || 0,
-      likeCount: product.likeCount || 0,
-      shareCount: product.shareCount || 0,
     };
     const [newProduct] = await db.insert(products).values(productData as any).returning();
     return newProduct;
@@ -382,8 +380,6 @@ export class DatabaseStorage implements IStorage {
     if (product.rating !== undefined) updateData.rating = product.rating;
     if (product.reviewCount !== undefined) updateData.reviewCount = product.reviewCount;
     if (product.likes !== undefined) updateData.likes = product.likes;
-    if (product.likeCount !== undefined) updateData.likeCount = product.likeCount;
-    if (product.shareCount !== undefined) updateData.shareCount = product.shareCount;
 
     const [updatedProduct] = await db.update(products)
       .set(updateData)

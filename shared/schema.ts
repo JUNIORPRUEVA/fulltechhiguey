@@ -30,8 +30,6 @@ export const products = pgTable("products", {
   rating: integer("rating").default(5), // 1-5 stars
   reviewCount: integer("review_count").default(0),
   likes: integer("likes").default(0), // Número de "me gusta" del producto
-  likeCount: integer("like_count").default(0), // Additional like count for compatibility
-  shareCount: integer("share_count").default(0), // Number of times product was shared
 });
 
 export const heroSlides = pgTable("hero_slides", {
