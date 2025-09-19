@@ -294,6 +294,10 @@ export default function ProductDetail() {
                     <span>Garantía incluida</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
+                    <i className="fas fa-truck text-blue-600"></i>
+                    <span>Delivery disponible</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
                     <i className="fas fa-headset text-purple-600"></i>
                     <span>Soporte 24/7</span>
                   </div>
