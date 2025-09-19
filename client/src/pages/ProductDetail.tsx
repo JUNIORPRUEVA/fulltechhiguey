@@ -144,192 +144,234 @@ export default function ProductDetail() {
     Boolean((product as any).specs && (Array.isArray((product as any).specs) ? (product as any).specs.length : Object.keys((product as any).specs || {}).length));
 
   return (
-    <div className="w-full min-h-screen bg-background overflow-hidden">
-      <div className="relative w-full h-screen">
-        {/* VISOR PRINCIPAL */}
-        <div
-          className="absolute inset-0"
-          onClick={() => setFullscreen(true)}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          {media[selected]?.type === "video" ? (
-            <video
-              src={media[selected].url}
-              className="w-full h-full object-cover cursor-pointer"
-              controls
-              autoPlay
-              muted
-              loop
-            />
-          ) : (
-            <img
-              src={media[selected]?.url}
-              alt={product.name}
-              className="w-full h-full object-cover cursor-pointer select-none"
-              draggable={false}
-            />
-          )}
-        </div>
+    <div className="w-full min-h-screen bg-background">
+      {/* HEADER FIJO */}
+      <TopBar />
 
-        {/* HEADER */}
-        <div className="absolute top-0 left-0 w-full z-50">
-          <TopBar />
-        </div>
-
-        {/* FAB COMPARTIR (siempre visible y por encima) */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleShare();
-          }}
-          className="fab-share-button absolute top-20 md:top-24 right-4 md:right-6 w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/90 backdrop-blur-md border border-white/50 flex items-center justify-center hover:bg-white transition-all duration-300 z-[70] shadow-lg"
-          title="Compartir"
-          aria-label="Compartir"
-        >
-          <i className="fas fa-share-alt text-black text-sm md:text-base" />
-        </button>
-
-        {/* BACK */}
-        <button
-          onClick={handleBack}
-          className="absolute top-20 md:top-24 left-4 md:left-8 w-10 h-10 md:w-12 md:h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors z-[70] shadow-lg"
-          title="Volver"
-        >
-          <i className="fas fa-arrow-left text-black text-sm md:text-base" />
-        </button>
-
-        {/* MINIATURAS — ENCIMA DE TODO */}
-        {media.length > 1 && (
-          <div className="absolute left-0 w-full bottom-24 md:bottom-28 z-[60] px-4 md:px-8 pointer-events-auto">
-            <div className="mx-auto max-w-4xl flex gap-2 md:gap-3 justify-center overflow-x-auto pb-2">
-              {media.map((m, i) => (
-                <button
-                  key={i}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelected(i);
-                  }}
-                  className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-all
-                    backdrop-blur-sm bg-black/25
-                    ${selected === i ? "border-white ring-2 ring-white/60" : "border-white/40 hover:border-white"}`}
-                  title={m.type === "video" ? "Video" : "Imagen"}
-                >
-                  {m.type === "video" ? (
-                    <div className="w-full h-full bg-black/70 flex items-center justify-center">
-                      <i className="fas fa-play text-white" />
-                    </div>
+      {/* CONTENIDO PRINCIPAL CON SCROLL */}
+      <div className="pt-16 min-h-screen">
+        {/* LAYOUT PRINCIPAL */}
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            
+            {/* COLUMNA IZQUIERDA: IMÁGENES */}
+            <div className="space-y-4">
+              {/* IMAGEN PRINCIPAL */}
+              <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl">
+                <div className="aspect-square w-full">
+                  {media[selected]?.type === "video" ? (
+                    <video
+                      src={media[selected].url}
+                      className="w-full h-full object-cover"
+                      controls
+                      autoPlay
+                      muted
+                      loop
+                    />
                   ) : (
                     <img
-                      src={m.url}
-                      alt={`${product.name} ${i + 1}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
+                      src={media[selected]?.url}
+                      alt={product.name}
+                      className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                      draggable={false}
+                      onClick={() => setFullscreen(true)}
                     />
                   )}
+                </div>
+                
+                {/* BOTÓN ZOOM ELEGANTE */}
+                <button
+                  onClick={() => setFullscreen(true)}
+                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-200 shadow-lg"
+                  title="Ver en pantalla completa"
+                >
+                  <i className="fas fa-expand text-gray-700 text-sm" />
                 </button>
-              ))}
-            </div>
-          </div>
-        )}
+              </div>
 
-        {/* OVERLAY INFO — MÁS ABAJO Y MENOR Z PARA NO TAPAR MINIATURAS */}
-        <div
-          className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/60 to-transparent
-                     p-6 md:p-8 lg:p-12 z-40 pb-28 md:pb-36 lg:pb-40"
-        >
-          <div className="max-w-md mx-auto md:max-w-2xl lg:max-w-4xl space-y-3 md:space-y-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
-                {product.name}
-              </h1>
-              {product.description && (
-                <p className="text-white/90 text-base md:text-lg lg:text-xl">{product.description}</p>
+              {/* MINIATURAS AL LADO */}
+              {media.length > 1 && (
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {media.map((m, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelected(i)}
+                      className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 hover:scale-105
+                        ${selected === i 
+                          ? "border-primary ring-2 ring-primary/30 shadow-lg" 
+                          : "border-gray-200 hover:border-primary/50"}`}
+                    >
+                      {m.type === "video" ? (
+                        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                          <i className="fas fa-play text-white text-sm" />
+                        </div>
+                      ) : (
+                        <img
+                          src={m.url}
+                          alt={`${product.name} ${i + 1}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="flex">{stars(product.rating || 5)}</div>
-              <span className="text-sm md:text-base text-white/80">
-                ({product.reviewCount || 0} reseñas)
-              </span>
-            </div>
+            {/* COLUMNA DERECHA: INFORMACIÓN */}
+            <div className="space-y-6">
+              {/* TÍTULO Y RATING */}
+              <div className="space-y-3">
+                <h1 className="text-3xl lg:text-4xl font-bold text-foreground leading-tight">
+                  {product.name}
+                </h1>
+                
+                <div className="flex items-center gap-3">
+                  <div className="flex">{stars(product.rating || 5)}</div>
+                  <span className="text-sm text-muted-foreground">
+                    ({product.reviewCount || 0} reseñas)
+                  </span>
+                </div>
+              </div>
 
-            <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl">
-              <span className="text-3xl lg:text-4xl font-bold text-white">{formatPrice(product.price)}</span>
-              <p className="text-sm text-white/80 mt-1">Precio incluye envío gratis</p>
-            </div>
+              {/* PRECIO DESTACADO */}
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6 rounded-xl border border-primary/20">
+                <div className="space-y-2">
+                  <span className="text-4xl lg:text-5xl font-bold text-primary">
+                    {formatPrice(product.price)}
+                  </span>
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <i className="fas fa-shipping-fast text-green-600"></i>
+                    Envío gratis incluido
+                  </p>
+                </div>
+              </div>
 
-            <div className="space-y-3">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleWhatsApp();
-                }}
-                className="w-full bg-green-600 text-white py-4 rounded-xl text-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-3 animate-pulse-ring"
-              >
-                <i className="fab fa-whatsapp text-xl"></i>
-                Pedir por WhatsApp
-              </button>
+              {/* DESCRIPCIÓN */}
+              {product.description && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">Descripción</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {product.description}
+                  </p>
+                </div>
+              )}
 
-              {/* Quitamos el botón Compartir de aquí porque ahora es FAB arriba */}
-              <div className="flex gap-3">
+              {/* BOTONES DE ACCIÓN */}
+              <div className="space-y-4 pt-6">
                 <button
-                  className="flex-1 bg-gray-500/50 backdrop-blur-sm text-white py-3 rounded-xl font-medium hover:bg-gray-600/70 transition-colors flex items-center justify-center gap-2"
-                  title="Favorito"
+                  onClick={handleWhatsApp}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-4 px-6 rounded-xl text-lg font-semibold transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl hover:scale-[1.02]"
                 >
-                  <i className="far fa-heart"></i>
-                  Favorito
+                  <i className="fab fa-whatsapp text-xl"></i>
+                  Pedir por WhatsApp
                 </button>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleShare}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    <i className="fas fa-share-alt"></i>
+                    Compartir
+                  </button>
+                  <button
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                    title="Favorito"
+                  >
+                    <i className="far fa-heart"></i>
+                    Favorito
+                  </button>
+                </div>
+              </div>
+
+              {/* INFORMACIÓN ADICIONAL */}
+              <div className="pt-6 space-y-4 border-t border-border">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <i className="fas fa-shield-alt text-green-600"></i>
+                    <span>Garantía incluida</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <i className="fas fa-undo text-blue-600"></i>
+                    <span>30 días devolución</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <i className="fas fa-headset text-purple-600"></i>
+                    <span>Soporte 24/7</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <i className="fas fa-medal text-orange-600"></i>
+                    <span>Calidad premium</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* CONTENIDO EXTENDIDO (solo si existe) */}
-      {hasExtended && (
-        <section className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-          {product.description && product.description.length > 100 && (
-            <div className="bg-card text-card-foreground rounded-xl p-5 shadow-sm">
-              <h2 className="text-lg font-semibold mb-2">Descripción</h2>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                {product.description}
-              </p>
-            </div>
-          )}
+          {/* CONTENIDO EXTENDIDO */}
+          {hasExtended && (
+            <div className="mt-16 space-y-8">
+              {product.description && product.description.length > 100 && (
+                <div className="bg-card text-card-foreground rounded-2xl p-8 shadow-sm border border-border">
+                  <h2 className="text-2xl font-semibold mb-4 flex items-center gap-3">
+                    <i className="fas fa-info-circle text-primary"></i>
+                    Descripción Completa
+                  </h2>
+                  <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
+                    {product.description}
+                  </p>
+                </div>
+              )}
 
-          {(product as any).specs && (
-            <div className="bg-card text-card-foreground rounded-xl p-5 shadow-sm">
-              <h2 className="text-lg font-semibold mb-3">Detalles técnicos</h2>
-              {Array.isArray((product as any).specs) ? (
-                <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                  {(product as any).specs.map((s: string, i: number) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ul>
-              ) : (
-                <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-                  {Object.entries((product as any).specs as Record<string, string>).map(([k, v]) => (
-                    <div key={k} className="flex gap-2">
-                      <dt className="w-40 font-medium">{k}</dt>
-                      <dd className="text-muted-foreground">{v}</dd>
-                    </div>
-                  ))}
-                </dl>
+              {(product as any).specs && (
+                <div className="bg-card text-card-foreground rounded-2xl p-8 shadow-sm border border-border">
+                  <h2 className="text-2xl font-semibold mb-6 flex items-center gap-3">
+                    <i className="fas fa-cog text-primary"></i>
+                    Especificaciones Técnicas
+                  </h2>
+                  {Array.isArray((product as any).specs) ? (
+                    <ul className="list-none space-y-3">
+                      {(product as any).specs.map((s: string, i: number) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <i className="fas fa-check-circle text-green-600 mt-1"></i>
+                          <span className="text-muted-foreground">{s}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {Object.entries((product as any).specs as Record<string, string>).map(([k, v]) => (
+                        <div key={k} className="space-y-1">
+                          <dt className="font-semibold text-foreground">{k}</dt>
+                          <dd className="text-muted-foreground">{v}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                </div>
               )}
             </div>
           )}
-        </section>
-      )}
+        </div>
+      </div>
 
-      {/* FULLSCREEN */}
+      {/* BOTÓN FLOTANTE DE REGRESO */}
+      <button
+        onClick={handleBack}
+        className="fixed top-20 left-4 w-12 h-12 bg-white hover:bg-gray-50 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-200 z-50 border border-gray-200"
+        title="Volver al catálogo"
+      >
+        <i className="fas fa-arrow-left text-gray-700" />
+      </button>
+
+      {/* FULLSCREEN MODAL */}
       {fullscreen && (
-        <div className="fixed inset-0 z-[100] bg-black/95">
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm">
           <button
             onClick={() => setFullscreen(false)}
-            className="absolute top-4 left-4 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors z-10"
+            className="absolute top-6 right-6 w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors z-10"
             title="Cerrar"
           >
             <i className="fas fa-times text-white text-lg"></i>
@@ -339,14 +381,14 @@ export default function ProductDetail() {
             <>
               <button
                 onClick={() => setSelected((i) => Math.max(0, i - 1))}
-                className="absolute left-2 top-1/2 -translate-y-1/2 px-3 py-3 rounded-full bg-white/15 hover:bg-white/25"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
                 title="Anterior"
               >
                 <i className="fas fa-chevron-left text-white" />
               </button>
               <button
                 onClick={() => setSelected((i) => Math.min(media.length - 1, i + 1))}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-3 rounded-full bg-white/15 hover:bg-white/25"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
                 title="Siguiente"
               >
                 <i className="fas fa-chevron-right text-white" />
@@ -354,14 +396,14 @@ export default function ProductDetail() {
             </>
           )}
 
-          <div className="w-full h-full flex items-center justify-center p-4">
+          <div className="w-full h-full flex items-center justify-center p-8">
             {media[selected]?.type === "video" ? (
-              <video src={media[selected].url} className="max-w-full max-h-full" controls autoPlay />
+              <video src={media[selected].url} className="max-w-full max-h-full rounded-lg" controls autoPlay />
             ) : (
               <img
                 src={media[selected]?.url}
                 alt={product.name}
-                className="max-w-full max-h-full object-contain"
+                className="max-w-full max-h-full object-contain rounded-lg"
               />
             )}
           </div>
