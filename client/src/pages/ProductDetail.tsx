@@ -392,14 +392,14 @@ export default function ProductDetail() {
             </>
           )}
 
-          <div className="w-full h-full flex items-center justify-center p-4">
+          <div className="w-full h-full flex items-center justify-center p-2">
             {media[selected]?.type === "video" ? (
-              <video src={media[selected].url} className="w-full h-full rounded-lg" controls autoPlay />
+              <video src={media[selected].url} className="max-w-full max-h-full rounded-lg" controls autoPlay />
             ) : (
               <img
                 src={media[selected]?.url}
                 alt={product.name}
-                className="w-full h-full object-cover rounded-lg"
+                className="max-w-full max-h-full object-contain rounded-lg"
               />
             )}
           </div>
