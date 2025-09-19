@@ -241,10 +241,6 @@ export default function ProductDetail() {
                   <span className="text-4xl lg:text-5xl font-bold text-primary">
                     {formatPrice(product.price)}
                   </span>
-                  <p className="text-sm text-muted-foreground flex items-center gap-2">
-                    <i className="fas fa-shipping-fast text-green-600"></i>
-                    Envío gratis incluido
-                  </p>
                 </div>
               </div>
 
@@ -396,14 +392,14 @@ export default function ProductDetail() {
             </>
           )}
 
-          <div className="w-full h-full flex items-center justify-center p-8">
+          <div className="w-full h-full flex items-center justify-center p-4">
             {media[selected]?.type === "video" ? (
-              <video src={media[selected].url} className="max-w-full max-h-full rounded-lg" controls autoPlay />
+              <video src={media[selected].url} className="w-full h-full rounded-lg" controls autoPlay />
             ) : (
               <img
                 src={media[selected]?.url}
                 alt={product.name}
-                className="max-w-full max-h-full object-contain rounded-lg"
+                className="w-full h-full object-cover rounded-lg"
               />
             )}
           </div>
