@@ -157,12 +157,12 @@ export default function ProductDetail() {
             {/* COLUMNA IZQUIERDA: IMÁGENES */}
             <div className="space-y-4">
               {/* IMAGEN PRINCIPAL */}
-              <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl">
-                <div className="w-full h-96 md:h-[500px]">
+              <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                <div className="w-full h-96 md:h-[500px] bg-white">
                   {media[selected]?.type === "video" ? (
                     <video
                       src={media[selected].url}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-2xl"
                       controls
                       autoPlay
                       muted
@@ -172,7 +172,7 @@ export default function ProductDetail() {
                     <img
                       src={media[selected]?.url}
                       alt={product.name}
-                      className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300 rounded-2xl"
                       draggable={false}
                       onClick={() => setFullscreen(true)}
                     />
