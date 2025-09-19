@@ -158,11 +158,11 @@ export default function ProductDetail() {
             <div className="space-y-4">
               {/* IMAGEN PRINCIPAL */}
               <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl">
-                <div className="aspect-square w-full">
+                <div className="w-full">
                   {media[selected]?.type === "video" ? (
                     <video
                       src={media[selected].url}
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto"
                       controls
                       autoPlay
                       muted
@@ -172,7 +172,7 @@ export default function ProductDetail() {
                     <img
                       src={media[selected]?.url}
                       alt={product.name}
-                      className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                      className="w-full h-auto cursor-pointer hover:scale-105 transition-transform duration-300"
                       draggable={false}
                       onClick={() => setFullscreen(true)}
                     />
