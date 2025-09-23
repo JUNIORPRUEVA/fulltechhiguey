@@ -136,7 +136,7 @@ export function ProductCard({ product, layout, isHomePage = false }: ProductCard
           width={400}
           height={400}
           autoRotate={true}
-          rotateInterval={30000}
+          rotateInterval={12000}
         />
 
         {/* Sale Badge - Cinta diagonal fina y elegante */}
@@ -247,7 +247,7 @@ export function ProductCard({ product, layout, isHomePage = false }: ProductCard
           width={200}
           height={200}
           autoRotate={true}
-          rotateInterval={30000}
+          rotateInterval={12000}
         />
 
         <div className="flex-1 min-w-0">
