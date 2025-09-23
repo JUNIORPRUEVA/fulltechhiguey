@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ImageLoader } from "./ImageLoader";
-import { useInViewport } from "@/hooks/useInViewport";
 
 interface ImageCarouselProps {
   images: string[];
@@ -23,52 +22,89 @@ export function ImageCarousel({
   height = 400,
   fallbackIcon = "fas fa-image",
   autoRotate = true,
-  rotateInterval = 8000, // bajamos a 8s por UX y ahorro
+  rotateInterval = 8000, // un poco más rápido y ligero que 30s
 }: ImageCarouselProps) {
-  const media = [...images, ...videos];
-  const { ref, inView } = useInViewport<HTMLDivElement>({ threshold: 0.4 });
-  const [idx, setIdx] = useState(0);
-  const last = useRef(0);
-  const raf = useRef<number | null>(null);
-  const reduceMotion = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const allMedia = [...images, ...videos];
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const inViewRef = useRef(false);
+  const rafId = useRef<number | null>(null);
+  const lastTick = useRef(0);
 
-  // rAF loop (solo visible, sin timers)
+  const reduceMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+
+  // == Visibilidad del carrusel (IntersectionObserver) ==
   useEffect(() => {
-    if (!autoRotate || reduceMotion || media.length <= 1) return;
-    const loop = (t: number) => {
-      if (!document.hidden && inView) {
-        if (t - last.current >= rotateInterval) {
-          setIdx((v) => (v + 1) % media.length);
-          last.current = t;
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        inViewRef.current = e.isIntersecting;
+        // Pausa/reanuda videos cuando entra/sale
+        const vids = Array.from(el.querySelectorAll("video")) as HTMLVideoElement[];
+        if (e.isIntersecting && !document.hidden) {
+          vids.forEach(v => v.play().catch(() => {}));
+        } else {
+          vids.forEach(v => v.pause());
         }
-      }
-      raf.current = requestAnimationFrame(loop);
-    };
-    raf.current = requestAnimationFrame(loop);
-    return () => { if (raf.current) cancelAnimationFrame(raf.current); };
-  }, [autoRotate, inView, rotateInterval, media.length, reduceMotion]);
+      },
+      { threshold: 0.4 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
-  // Pausar/Play videos al cambiar visibilidad o slide
+  // == Pausa global si pestaña oculta ==
   useEffect(() => {
-    const container = ref.current;
-    if (!container) return;
-    const vids = Array.from(container.querySelectorAll("video")) as HTMLVideoElement[];
     const onVis = () => {
-      const hidden = document.hidden || !inView;
-      vids.forEach(v => hidden ? v.pause() : v.play().catch(()=>{}));
+      const hidden = document.hidden || !inViewRef.current;
+      const el = containerRef.current;
+      if (!el) return;
+      const vids = Array.from(el.querySelectorAll("video")) as HTMLVideoElement[];
+      vids.forEach(v => (hidden ? v.pause() : v.play().catch(() => {})));
     };
     document.addEventListener("visibilitychange", onVis);
-    onVis();
     return () => document.removeEventListener("visibilitychange", onVis);
-  }, [inView, idx, ref]);
+  }, []);
+
+  // == Rotación con rAF (sin setInterval) SOLO si visible ==
+  useEffect(() => {
+    if (!autoRotate || reduceMotion || allMedia.length <= 1) return;
+
+    const loop = (t: number) => {
+      if (inViewRef.current && !document.hidden) {
+        if (t - lastTick.current >= rotateInterval) {
+          setCurrentIndex((p) => (p + 1) % allMedia.length);
+          lastTick.current = t;
+        }
+      }
+      rafId.current = requestAnimationFrame(loop);
+    };
+
+    rafId.current = requestAnimationFrame(loop);
+    return () => {
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+      rafId.current = null;
+    };
+  }, [autoRotate, rotateInterval, allMedia.length, reduceMotion]);
 
   const isVideo = (url: string) => videos.includes(url);
 
-  const next = (e?: React.MouseEvent) => { e?.stopPropagation(); setIdx((v) => (v + 1) % media.length); };
-  const prev = (e?: React.MouseEvent) => { e?.stopPropagation(); setIdx((v) => (v - 1 + media.length) % media.length); };
-  const goTo = (i: number) => setIdx(i);
+  const nextMedia = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % allMedia.length);
+  };
 
-  if (media.length === 0) {
+  const prevMedia = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setCurrentIndex((prev) => (prev === 0 ? allMedia.length - 1 : prev - 1));
+  };
+
+  const goToMedia = (i: number) => setCurrentIndex(i);
+
+  if (allMedia.length === 0) {
     return (
       <div className={`${className} bg-muted flex items-center justify-center`}>
         <i className={`${fallbackIcon} text-muted-foreground text-2xl`} />
@@ -76,27 +112,32 @@ export function ImageCarousel({
     );
   }
 
-  const current = media[idx];
+  const currentMedia = allMedia[currentIndex];
 
   return (
-    <div ref={ref} className={`relative ${className}`}>
+    <div ref={containerRef} className={`relative ${className}`}>
       <div className="relative w-full h-full overflow-hidden">
-        {isVideo(current) ? (
+        {isVideo(currentMedia) ? (
           <video
-            key={current}
+            key={currentMedia}
             className="w-full h-full object-cover"
+            // ⚠️ NO cargamos data a lo loco
             preload="metadata"
             muted
             loop
             playsInline
-            // src solo si visible, así no chupa ancho de banda offscreen
-            src={inView ? current : undefined}
-            onCanPlay={(e) => !document.hidden && (e.currentTarget as HTMLVideoElement).play().catch(()=>{})}
+            // src solo si está en viewport → ahorro de datos
+            src={inViewRef.current ? currentMedia : undefined}
+            onCanPlay={(e) => {
+              if (!document.hidden && inViewRef.current) {
+                (e.currentTarget as HTMLVideoElement).play().catch(() => {});
+              }
+            }}
           />
         ) : (
           <ImageLoader
-            key={current}
-            src={current}
+            key={currentMedia}
+            src={currentMedia}
             alt={alt}
             className="w-full h-full"
             width={width}
@@ -104,40 +145,49 @@ export function ImageCarousel({
           />
         )}
 
-        {media.length > 1 && (
+        {/* Flechas (si hay varias) */}
+        {allMedia.length > 1 && (
           <>
             <button
-              onClick={prev}
+              onClick={prevMedia}
               className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-all"
               data-testid="carousel-prev"
             >
-              <i className="fas fa-chevron-left text-xs"></i>
+              <i className="fas fa-chevron-left text-xs" />
             </button>
             <button
-              onClick={next}
+              onClick={nextMedia}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-all"
               data-testid="carousel-next"
             >
-              <i className="fas fa-chevron-right text-xs"></i>
+              <i className="fas fa-chevron-right text-xs" />
             </button>
           </>
         )}
 
-        {isVideo(current) && (
+        {/* Indicador de tipo */}
+        {isVideo(currentMedia) && (
           <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
-            <i className="fas fa-play text-xs"></i><span>Video</span>
+            <i className="fas fa-play text-xs" />
+            <span>Video</span>
           </div>
         )}
       </div>
 
-      {media.length > 1 && (
+      {/* Puntos (si hay varias) */}
+      {allMedia.length > 1 && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-          {media.map((_, i) => (
+          {allMedia.map((_, index) => (
             <button
-              key={i}
-              onClick={(e)=>{e.stopPropagation(); goTo(i);}}
-              className={`w-2 h-2 rounded-full transition-all ${i===idx ? "bg-white" : "bg-white/50 hover:bg-white/75"}`}
-              data-testid={`carousel-dot-${i}`}
+              key={index}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToMedia(index);
+              }}
+              className={`w-2 h-2 rounded-full transition-all ${
+                index === currentIndex ? "bg-white" : "bg-white/50 hover:bg-white/75"
+              }`}
+              data-testid={`carousel-dot-${index}`}
             />
           ))}
         </div>
